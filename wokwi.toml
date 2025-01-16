@@ -1,0 +1,4 @@
+[wokwi]
+version = 1
+firmware = 'build\Tarefa01_keypad_led.hex'
+elf = 'build\Tarefa01_keypad_led.uf2'
