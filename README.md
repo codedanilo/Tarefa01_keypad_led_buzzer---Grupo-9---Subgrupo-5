@@ -6,10 +6,10 @@ Integrantes:
 Vídeo:
 - a
 
-Este projeto demonstra como utilizar um teclado matricial 4x4 para controlar LEDs e um buzzer em uma placa Raspberry Pi Pico. O código permite alternar os LEDs e ativar o buzzer pressionando as teclas designadas.
+Este projeto demonstra como utilizar um teclado matricial 4x4 para controlar LEDs e um buzzer em uma placa Raspberry Pi Pico W. O código permite alternar os LEDs e ativar o buzzer pressionando as teclas designadas.
 
 • Requisitos:
-    - Raspberry Pi Pico;
+    - Raspberry Pi Pico W;
     - LEDs (vermelho, verde, azul);
     - Resistores para os LEDs;
     - Buzzer;
