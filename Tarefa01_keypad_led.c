@@ -106,9 +106,9 @@ int main() {
 
         // LED verde piscando
         gpio_put(LED_VERDE, 1);
-        sleep_ms(500);
+        sleep_ms(750);
         gpio_put(LED_VERDE, 0);
-        sleep_ms(500);
+        sleep_ms(750);
 
         // Leitura do teclado matricial
         char tecla = ler_keypad();
