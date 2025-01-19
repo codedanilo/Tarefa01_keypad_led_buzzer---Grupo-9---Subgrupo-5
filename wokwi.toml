@@ -1,0 +1,4 @@
+[wokwi]
+version = 1
+firmware = "build/BUZZER.uf2"
+elf = "build/BUZZER.elf"
