@@ -83,6 +83,33 @@ int main() {
     iniciar_saidas();
 
     while (true) {
+#<<<<<<< codigo-mudado
+#=======
+        // Botões físicos
+        if (!gpio_get(BOTAO_A)) {
+            gpio_put(LED_VERMELHO, 1);
+            gpio_put(BUZZER_A, 1);
+        } else {
+            gpio_put(LED_VERMELHO, 0);
+            gpio_put(BUZZER_A, 0);
+        }
+
+        if (!gpio_get(BOTAO_B)) {
+            gpio_put(LED_AZUL, 1);
+            gpio_put(BUZZER_B, 1);
+        } else {
+            gpio_put(LED_AZUL, 0);
+            gpio_put(BUZZER_B, 0);
+        }
+
+        // LED verde piscando
+        gpio_put(LED_VERDE, 1);
+        sleep_ms(750);
+        gpio_put(LED_VERDE, 0);
+        sleep_ms(750);
+
+        // Leitura do teclado matricial
+#>>>>>>> main
         char tecla = ler_keypad();
         if (tecla != '\0') {
             printf("Tecla pressionada: %c\n", tecla);
