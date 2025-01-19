@@ -1,159 +1,133 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
 
-// Definição dos pinos
-#define LED_VERMELHO 13
-#define LED_AZUL 12
-#define LED_VERDE 11
-#define BUZZER_A 21
-#define BUZZER_B 10
+// Definição dos pinos GPIO utilizados para os LEDs e o buzzer
+#define PINO_VERMELHO 13
+#define PINO_AZUL 12
+#define PINO_VERDE 11
+#define TECLA_VERMELHO 'A'
+#define TECLA_AZUL 'B'
+#define TECLA_VERDE 'C'
+#define PINO_BUZZER_1 10
+#define TECLA_BUZZER_1 '#'
+#define PINO_BUZZER_2 21
+#define TECLA_BUZZER_2 '*'
 
-// Definição dos pinos do teclado matricial
+// Definição do tamanho do teclado matricial (4x4)
 #define LINHAS 4
 #define COLUNAS 4
-#define L1 11
-#define L2 10
-#define L3 9
-#define L4 8
-#define C1 7
-#define C2 6
-#define C3 5
-#define C4 4
 
-const uint8_t pinos_linhas[LINHAS] = {L1, L2, L3, L4};
-const uint8_t pinos_colunas[COLUNAS] = {C1, C2, C3, C4};
+// Definição dos pinos GPIO das linhas e colunas do teclado matricial
+#define L1 9
+#define L2 8
+#define L3 7
+#define L4 6
+#define C1 5
+#define C2 4
+#define C3 3
+#define C4 2
+
+// Arrays com os pinos correspondentes às linhas e colunas
+const uint8_t pinos_linhas[LINHAS] = {L1,L2,L3,L4};
+const uint8_t pinos_colunas[COLUNAS] = {C1,C2,C3,C4};
+
+// Mapeamento das teclas do teclado matricial
 const char teclas[LINHAS][COLUNAS] = {
-    {'1', '2', '3', 'A'},
-    {'4', '5', '6', 'B'},
-    {'7', '8', '9', 'C'},
-    {'*', '0', '#', 'D'}
+  {'1','2','3','A'},
+  {'4','5','6','B'},
+  {'7','8','9','C'},
+  {'*','0','#','D'}
 };
 
-// Função para inicializar o teclado matricial
+// Função para inicializar os pinos das linhas e colunas do teclado
 void iniciar_keypad() {
-    for (uint8_t i = 0; i < LINHAS; i++) {
-        gpio_init(pinos_linhas[i]);
-        gpio_set_dir(pinos_linhas[i], GPIO_OUT);
-        gpio_put(pinos_linhas[i], 0);
-    }
-    for (uint8_t i = 0; i < COLUNAS; i++) {
-        gpio_init(pinos_colunas[i]);
-        gpio_set_dir(pinos_colunas[i], GPIO_IN);
-        gpio_pull_down(pinos_colunas[i]);
-    }
+  uint8_t i;
+  // Configura os pinos das linhas como saída e define o estado inicial como 0
+  for(i=0;i<LINHAS;i++) {
+    gpio_init(pinos_linhas[i]);
+    gpio_set_dir(pinos_linhas[i], GPIO_OUT);
+    gpio_put(pinos_linhas[i], 0);
+  }
+  // Configura os pinos das colunas como entrada e ativa o pull-down interno
+  for(i=0;i<COLUNAS;i++) {
+    gpio_init(pinos_colunas[i]);
+    gpio_set_dir(pinos_colunas[i], GPIO_IN);
+    gpio_pull_down(pinos_colunas[i]);
+  }
 }
 
-// Função para ler tecla pressionada no teclado matricial
+// Função para ler a tecla pressionada no teclado matricial
 char ler_keypad() {
-    for (uint8_t linha = 0; linha < LINHAS; linha++) {
-        gpio_put(pinos_linhas[linha], 1);
-        for (uint8_t coluna = 0; coluna < COLUNAS; coluna++) {
-            if (gpio_get(pinos_colunas[coluna])) {
-                gpio_put(pinos_linhas[linha], 0);
-                return teclas[linha][coluna];
-            }
-        }
-        gpio_put(pinos_linhas[linha], 0);
+  uint8_t linha;
+  uint8_t coluna;
+  // Itera pelas linhas e verifica se há sinal em alguma coluna
+  for(linha=0;linha<LINHAS;linha++) {
+    gpio_put(pinos_linhas[linha], 1); // Ativa a linha atual
+    for(coluna=0;coluna<COLUNAS;coluna++) {
+      if( gpio_get(pinos_colunas[coluna]) ) { // Verifica se há sinal na coluna
+        gpio_put(pinos_linhas[linha], 0); // Desativa a linha atual
+        return teclas[linha][coluna]; // Retorna a tecla pressionada
+      }
     }
-    return '\0';
+    gpio_put(pinos_linhas[linha], 0); // Desativa a linha atual
+  }
+  return '\0'; // Retorna '\0' se nenhuma tecla foi pressionada
 }
 
-// Função para inicializar LEDs e buzzers
+// Função para inicializar os pinos dos LEDs e do buzzer
 void iniciar_saidas() {
-    gpio_init(LED_VERMELHO);
-    gpio_set_dir(LED_VERMELHO, GPIO_OUT);
-    gpio_init(LED_AZUL);
-    gpio_set_dir(LED_AZUL, GPIO_OUT);
-    gpio_init(LED_VERDE);
-    gpio_set_dir(LED_VERDE, GPIO_OUT);
-    gpio_init(BUZZER_A);
-    gpio_set_dir(BUZZER_A, GPIO_OUT);
-    gpio_init(BUZZER_B);
-    gpio_set_dir(BUZZER_B, GPIO_OUT);
-
-    gpio_put(LED_VERMELHO, 0);
-    gpio_put(LED_AZUL, 0);
-    gpio_put(LED_VERDE, 0);
-    gpio_put(BUZZER_A, 0);
-    gpio_put(BUZZER_B, 0);
+  gpio_init(PINO_VERMELHO);
+  gpio_init(PINO_VERDE);
+  gpio_init(PINO_AZUL);
+  gpio_init(PINO_BUZZER_1);
+  gpio_init(PINO_BUZZER_2);
+  gpio_set_dir(PINO_VERMELHO, GPIO_OUT);
+  gpio_set_dir(PINO_VERDE, GPIO_OUT);
+  gpio_set_dir(PINO_AZUL, GPIO_OUT);
+  gpio_set_dir(PINO_BUZZER_1, GPIO_OUT);
+  gpio_set_dir(PINO_BUZZER_2, GPIO_OUT);
+  // Inicializa os pinos com estado desligado
+  gpio_put(PINO_VERMELHO, 0);
+  gpio_put(PINO_VERDE, 0);
+  gpio_put(PINO_AZUL, 0);
+  gpio_put(PINO_BUZZER_1, 0);
+  gpio_put(PINO_BUZZER_2, 0);
 }
 
+// Função principal
 int main() {
-    iniciar_keypad();
-    iniciar_saidas();
-
-    while (true) {
-#<<<<<<< codigo-mudado
-#=======
-        // Botões físicos
-        if (!gpio_get(BOTAO_A)) {
-            gpio_put(LED_VERMELHO, 1);
-            gpio_put(BUZZER_A, 1);
-        } else {
-            gpio_put(LED_VERMELHO, 0);
-            gpio_put(BUZZER_A, 0);
-        }
-
-        if (!gpio_get(BOTAO_B)) {
-            gpio_put(LED_AZUL, 1);
-            gpio_put(BUZZER_B, 1);
-        } else {
-            gpio_put(LED_AZUL, 0);
-            gpio_put(BUZZER_B, 0);
-        }
-
-        // LED verde piscando
-        gpio_put(LED_VERDE, 1);
-        sleep_ms(750);
-        gpio_put(LED_VERDE, 0);
-        sleep_ms(750);
-
-        // Leitura do teclado matricial
-#>>>>>>> main
-        char tecla = ler_keypad();
-        if (tecla != '\0') {
-            printf("Tecla pressionada: %c\n", tecla);
-
-            switch (tecla) {
-                case '1': // Liga o LED vermelho
-                    gpio_put(LED_VERMELHO, 1);
-                    break;
-                case '2': // Desliga o LED vermelho
-                    gpio_put(LED_VERMELHO, 0);
-                    break;
-                case '3': // Liga o buzzer A
-                    gpio_put(BUZZER_A, 1);
-                    break;
-                case '4': // Desliga o buzzer A
-                    gpio_put(BUZZER_A, 0);
-                    break;
-                case '5': // Liga o LED azul
-                    gpio_put(LED_AZUL, 1);
-                    break;
-                case '6': // Desliga o LED azul
-                    gpio_put(LED_AZUL, 0);
-                    break;
-                case '7': // Liga o buzzer B
-                    gpio_put(BUZZER_B, 1);
-                    break;
-                case '8': // Desliga o buzzer B
-                    gpio_put(BUZZER_B, 0);
-                    break;
-                case '9': // Pisca o LED verde
-                    gpio_put(LED_VERDE, 1);
-                    sleep_ms(750);
-                    gpio_put(LED_VERDE, 0);
-                    sleep_ms(750);
-                    break;
-                default:
-                    printf("Tecla não atribuída: %c\n", tecla);
-                    break;
-            }
-        }
+  char tecla;
+  stdio_init_all();
+  iniciar_keypad(); // Configura o teclado matricial
+  iniciar_saidas(); // Configura os LEDs e o buzzer
+  while (true) {
+    sleep_ms(20); // Aguarda 20 milissegundos para melhor funcionamento do simulador 
+    tecla = ler_keypad(); // Lê as teclas do keypad
+    if( tecla != '\0' ) { // Verifica se uma tecla foi pressionada
+      printf("Tecla pressionada: %c\n", tecla); // Exibe a tecla no terminal
+      // Alterna o estado dos LEDs ou ativa o buzzer com base na tecla pressionada
+      if(tecla == TECLA_VERMELHO) {
+        gpio_put(PINO_VERMELHO, !gpio_get(PINO_VERMELHO));
+      }else
+      if(tecla == TECLA_VERDE) {
+        gpio_put(PINO_VERDE, !gpio_get(PINO_VERDE));
+      }else
+      if(tecla == TECLA_AZUL) {
+        gpio_put(PINO_AZUL, !gpio_get(PINO_AZUL));
+      }else
+      if(tecla == TECLA_BUZZER_1) {
+        gpio_put(PINO_BUZZER_1, 1); // Liga o buzzer
+        sleep_ms(250); // Mantém o buzzer ligado por 250 milissegundos
+        gpio_put(PINO_BUZZER_1, 0); // Desliga o buzzer
+        continue; // Volta ao início do loop
+      }else
+      if(tecla == TECLA_BUZZER_2) {
+        gpio_put(PINO_BUZZER_2, 1); // Liga o buzzer
+        sleep_ms(250); // Mantém o buzzer ligado por 250 milissegundos
+        gpio_put(PINO_BUZZER_2, 0); // Desliga o buzzer
+        continue; // Volta ao início do loop
+      }
+      sleep_ms(180); // Aguarda antes de processar a próxima tecla para evitar leituras instáveis
     }
-    return 0;
+  }
 }
-
-
-
-
