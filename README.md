@@ -6,6 +6,7 @@ Integrantes:
 - Isabel Rosa de Santana (Isabelrs02)
 - Gabriel Neponuceno Batista (GNepoB)
 - Danilo Silveira da Glória (codedanilo)
+- Danrlei Almeida Araujo (danrleiaraujo)
   
 Vídeo:
 - a
